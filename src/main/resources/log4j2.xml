@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appenders>
+        <Routing name="Routing">
+            <Routes pattern="$${ctx:application}">
+
+                <!-- This route is chosen if ThreadContext has no value for key "application". -->
+                <Route key="$${ctx:application}">
+                    <Console name="Console" target="SYSTEM_OUT">
+                        <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+                    </Console>
+                </Route>
+
+                <!-- This route is chosen if ThreadContext has a value for the key "application". The value dynamically determines the name of the log file. -->
+                <Route>
+                    <RollingFile name="Rolling-${ctx:application}"
+                                 fileName="logs/${ctx:application}-${ctx:environment}-${ctx:mode}.log"
+                                 filePattern="./logs/${date:yyyy-MM}/${ctx:application}-${ctx:environment}-${ctx:mode}-%d{yyyy-MM-dd}-%i.log.gz">
+                        <PatternLayout>
+                            <pattern>%d{ISO8601} [%t] %p %c{3} - %m%n</pattern>
+                        </PatternLayout>
+                        <Policies>
+                            <TimeBasedTriggeringPolicy interval="6" modulate="true" />
+                            <SizeBasedTriggeringPolicy size="10 MB" />
+                        </Policies>
+                    </RollingFile>
+                </Route>
+            </Routes>
+        </Routing>
+    </appenders>
+    <loggers>
+        <root level="info">
+            <appender-ref ref="Routing" />
+        </root>
+    </loggers>
+</configuration>
